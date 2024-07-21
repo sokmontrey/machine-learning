@@ -1,12 +1,14 @@
 const sess = new onnx.InferenceSession();
 const model_loading = sess.loadModel("./handwritten_flatten.onnx");
 
-const CANVAS_SIZE = 350;
+const CANVAS_SIZE = 300;
 const INPUT_SIZE = 28;
 const PIXEL_SIZE = CANVAS_SIZE / INPUT_SIZE;
 
 const canvas = document.getElementById("canvas");
 const clr_btn = document.getElementById("clr-btn");
+const preds_container = document.getElementById("preds-container");
+const softmax_checkbox = document.getElementById("softmax-checkbox");
 
 canvas.width = CANVAS_SIZE;
 canvas.height = CANVAS_SIZE;
@@ -30,6 +32,7 @@ function clearCanvas() {
         ctx.stroke();
     }
     input = new Array(INPUT_SIZE * INPUT_SIZE).fill(0);
+    updateBars(new Array(10).fill(0));
 }
 
 function drawAt(x, y) {
@@ -37,17 +40,47 @@ function drawAt(x, y) {
     ctx.fillRect(x, y, PIXEL_SIZE, PIXEL_SIZE);
     let i = Math.floor(y / PIXEL_SIZE);
     let j = Math.floor(x / PIXEL_SIZE);
+    i = Math.min(Math.max(i, 0), INPUT_SIZE - 1);
+    j = Math.min(Math.max(j, 0), INPUT_SIZE - 1);
     input[i * INPUT_SIZE + j] = 1;
     predict(input);
+}
+
+function updateBars(logit) {
+    preds_container.innerHTML = "";
+    let max = 0;
+    let max_i = 0;
+
+    for (let i=0; i<logit.length; i++) {
+        const pred_label = document.createElement("p");
+        pred_label.classList.add("pred-label");
+        pred_label.textContent = i;
+
+        const pred_bar = document.createElement("div");
+        pred_bar.classList.add("pred-bar");
+        pred_bar.style.width = `${logit[i] * 100}%`;
+
+        const pred = document.createElement("div");
+        pred.classList.add("pred");
+        pred.appendChild(pred_label);
+        pred.appendChild(pred_bar);
+
+        preds_container.appendChild(pred);
+
+        if (logit[i] > max) {
+            max = logit[i];
+            max_i = i;
+        }
+    }
+
+    preds_container.innerHTML += `<p class="pred-label">Prediction: ${max_i}</p>`;
 }
 
 function predict(input) {
     const input_tensor = new onnx.Tensor(new Float32Array(input), "float32", [INPUT_SIZE * INPUT_SIZE]);
     sess.run([input_tensor]).then((output) => {
         const result = output.values().next().value.data;
-        const max = Math.max(...result);
-        const index = result.indexOf(max);
-        console.log("Predicted: ", index);  
+        updateBars(result);
     });
 }
 

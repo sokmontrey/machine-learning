@@ -1,0 +1,56 @@
+body {
+    display: flex;
+    font-family: monospace;
+}
+
+canvas {
+    border: 3px solid gray;
+}
+
+button {
+    padding: 1rem 2rem;
+    border: 3px solid gray;
+    background: white;
+    font-family: monospace;
+    font-size: 1rem;
+    font-weight: bold;
+    transition: all 0.1s ease-in-out;
+}
+
+button:hover {
+    background: black;
+    color: white;
+}
+
+#canvas-container {
+    padding: 2rem;
+}
+
+#preds-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    justify-content: center;
+    margin: 1rem;
+}
+
+.pred {
+    width: 100%;
+    display: flex;
+    padding: 5px;
+    align-items: center;
+}
+
+.pred-label {
+    font-family: monospace;
+    font-size: 1rem;
+    margin-right: 1rem;
+}
+
+.pred-bar {
+    min-width: 10px;
+    height: 25px;
+    background-color: black;
+}
+
