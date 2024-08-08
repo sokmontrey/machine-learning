@@ -4,3 +4,4 @@ datasets/
 llm/
 models/
 *.zip
+!handwritten_flatten.onnx
